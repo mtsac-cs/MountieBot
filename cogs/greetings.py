@@ -10,7 +10,7 @@ class Greetings(commands.Cog):
     #the hello command. says hello back to the member by their name
     @commands.command()
     async def hello(self, ctx, *, member: discord.Member = None):
-        """Says hello"""
+        """ - Says hello"""
         member = member or ctx.author
         await ctx.send('Hello ' + member.name)
 
