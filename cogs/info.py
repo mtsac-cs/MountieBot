@@ -15,18 +15,24 @@ class Info(commands.Cog):
 
     #the define function will define any word
     @commands.command()
-    async def define(self, ctx, arg):
+    async def define(self, ctx, *arg):
         """ - Gives the definition to any word"""
-        obj = dictionary.meaning(arg)
-        for key in obj:
-            await ctx.send(key + ":")
-            for definition in obj[key]:
-                await ctx.send(definition)
+        obj = dictionary.meaning(' '.join(arg))
+        #the result
+        res = ""
+
+        #iterating through the dictioanry with the meaning and appending to the result string
+        for pos in obj:
+            res += pos + ":\n"
+            for definition in obj[pos]:
+                res += "\t" + definition + "\n"
+                
+        await ctx.send(res)
 
     @commands.command()
-    async def weather(self, ctx, arg):
+    async def weather(self, ctx, *place):
         """ - Gives weather for any city"""
-        url = "https://www.google.com/search?q=weather+in+" + arg
+        url = "https://www.google.com/search?q=weather+in+" + '+'.join(place)
         headers_Get = {
             'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; WOW64; rv:49.0) Gecko/20100101 Firefox/49.0',
             'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,/;q=0.8',
