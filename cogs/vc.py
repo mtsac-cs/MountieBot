@@ -2,9 +2,11 @@ import discord
 
 from discord.ext import commands
 from discord.utils import get
+from pytube import YouTube      #need to pip install pytube
+from moviepy.editor import *    #need to pip install moviepy
 
 #the roles cog class
-class VC(commands.Cog):
+class Music(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
         self.bot_vc = None
@@ -15,8 +17,26 @@ class VC(commands.Cog):
 
     #the define function will define any word
     @commands.command()
-    async def join(self, ctx, arg = ''):
-        """ - Join current voice channel"""
+    async def play(self, ctx, url):
+        """ - Join current voice channel, plays songs from YouTube (almost there!)"""
+
+        yt = YouTube(url)
+        GLOBALPATH = os.getcwd()    #where vids/audio are at
+
+        if GLOBALPATH[0] == '/':
+            #MAC PATH
+            MUSICPATH = GLOBALPATH + '/Bot Music'
+        else:
+            #WINDOWS PATH   
+            MUSICPATH = GLOBALPATH + '\Bot Music'
+
+        vidTitle = yt.views     #number of views acts as videoID/title
+        yt.streams.first().download(MUSICPATH, vidTitle)    #downloads vid to specified path
+        vidFileName = vidTitle + ".mp4"
+        audioFileName = yt.title + ".mp3"
+        video = VideoFileClip(os.path.join(MUSICPATH,vidFileName))      #creates video clip
+        video.audio.write_audiofile(os.path.join(MUSICPATH, audioFileName))     #creates audio clip from video clip
+        os.remove(os.path.join(MUSICPATH,vidFileName))      #deletes video file
 
         try:
             self.member = ctx.message.author
@@ -69,4 +89,4 @@ class VC(commands.Cog):
             
 
 def setup(client):
-    client.add_cog(VC(client))
+    client.add_cog(Music(client))
