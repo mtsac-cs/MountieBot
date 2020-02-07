@@ -19,7 +19,6 @@ import config
 
 #function to update custom prefixes in remote mysql database
 def updateCustomPrefixes():
-    print(config.custom_prefixes)
     connection = pymysql.connect(host=config.server_info["ip"],
                                 user=config.server_info["database"]["user"],
                                 password=config.server_info["database"]["password"],
@@ -45,7 +44,7 @@ class Settings(commands.Cog):
 
     #the prefix function - to add, remove, or list the prefixes
     @commands.command()
-	@commands.has_permissions(administrator=True)
+    @commands.has_permissions(administrator=True)
     async def prefix(self, ctx, *arg):
         """ - add, remove, or list the command prefixes (admin)"""
 
@@ -68,13 +67,15 @@ class Settings(commands.Cog):
 
                 #to add the prefix
                 if command == 'add':
-                    if not p in config.custom_prefixes[guildid]:
-                        config.custom_prefixes[guildid].append(p)
-                        updateCustomPrefixes()
-
-                        await ctx.send("Added the prefix " + p)
+                    if not p == '>':
+                        if not p in config.custom_prefixes[guildid]:
+                            config.custom_prefixes[guildid].append(p)
+                            await ctx.send("Added the prefix " + p)
+                            updateCustomPrefixes()
+                        else:
+                            await ctx.send(p + " is already a prefix")
                     else:
-                        await ctx.send(p + " is already a prefix")
+                        await ctx.send(p + " is not a valid prefix")
 						
                     
                 
@@ -82,9 +83,8 @@ class Settings(commands.Cog):
                 if command == 'remove':
                     if p in config.custom_prefixes[guildid]:
                         config.custom_prefixes[guildid].remove(p)
-                        updateCustomPrefixes()
-
                         await ctx.send("Removed the prefix " + p)
+                        updateCustomPrefixes()
                     else:
                         await ctx.send("That is not a prefix")
         #if there is only one argument

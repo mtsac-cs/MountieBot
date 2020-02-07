@@ -6,7 +6,7 @@ import os
 default_prefixes = ['!']
 
 #the list of optional cogs
-optionalCogs = ['mtsac']
+optionalCogs = ['mtsac', 'vc']
 
 #change cwd to directory of file
 os.chdir(os.path.dirname(os.path.realpath(__file__)))
@@ -16,12 +16,11 @@ with open("server_info.json", "r") as read_file:
     server_info = json.load(read_file)
 
 # Connecting to the database
-def getPrefixes(cursor):
+def getFromDB(table, cursor):
     #selecting the url with the given guildid and link name
-    sql = "SELECT * FROM `prefixes` limit 1"
+    sql = "SELECT * FROM `" + table + "` limit 1"
     cursor.execute(sql)
     return cursor.fetchone()
-
 
 #connection to remote mysql server
 connection = pymysql.connect(host=server_info["ip"],
@@ -35,8 +34,8 @@ connection = pymysql.connect(host=server_info["ip"],
 #getting the custom prefixes from the remote mysql server
 try:
     with connection.cursor() as cursor:
-        result = getPrefixes(cursor)
-        custom_prefixes = json.loads(result['custom_prefixes'])
+        links = json.loads(getFromDB("links", cursor)['guild_links'])
+        custom_prefixes = json.loads(getFromDB("prefixes", cursor)['custom_prefixes'])
 finally:
     connection.close()
 
