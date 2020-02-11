@@ -4,11 +4,9 @@ from os import path
 
 from discord.ext import commands
 
-prefix = '!'
+import config
 
-optionalCogs = ['mtsac']
-
-bot = commands.Bot(command_prefix=prefix)
+bot = commands.Bot(command_prefix=config.determine_prefix)
 
 #change cwd to directory of file
 os.chdir(os.path.dirname(os.path.realpath(__file__)))
@@ -16,7 +14,7 @@ os.chdir(os.path.dirname(os.path.realpath(__file__)))
 
 #loading all the cogs from the cogs folder
 for filename in os.listdir('cogs'):
-    if filename.endswith('.py') and not filename[:-3] in optionalCogs:
+    if filename.endswith('.py') and not filename[:-3] in config.optionalCogs:
         bot.load_extension('cogs.'+filename[:-3])
 
 @bot.event
@@ -27,7 +25,7 @@ async def on_ready():
 @bot.command()
 @commands.has_permissions(administrator=True)
 async def load(ctx, cog):
-	""" - Load any extension"""
+	""" - Load any extension (admin)"""
 	os.chdir(os.path.dirname(os.path.realpath(__file__)))
 	if path.exists("cogs/"+cog+".py"):
 		prelen = len(bot.commands)
