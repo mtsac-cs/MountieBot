@@ -7,6 +7,8 @@ import sys
 import pymysql.cursors
 import json
 
+import re
+
 sys.path.insert(1, os.path.join(sys.path[0], '..'))
 
 import config
@@ -14,24 +16,28 @@ import config
 
 #function to update custom prefixes in remote mysql database
 def updateLinks():
-    connection = pymysql.connect(host=config.server_info["ip"],
-                                user=config.server_info["database"]["user"],
-                                password=config.server_info["database"]["password"],
-                                db=config.server_info["database"]["name"],
-                                charset='utf8mb4',
-                                cursorclass=pymysql.cursors.DictCursor
-    )
-    try:
-        with connection.cursor() as cursor:
-            #getting the links dictionary as a string
-            g_links = json.dumps(config.links, separators=(',', ':'))
+	if config.sqlConnected:
+		try:
+			connection = pymysql.connect(host=config.server_info["ip"],
+										user=config.server_info["database"]["user"],
+										password=config.server_info["database"]["password"],
+										db=config.server_info["database"]["name"],
+										charset='utf8mb4',
+										cursorclass=pymysql.cursors.DictCursor
+			)
+			try:
+				with connection.cursor() as cursor:
+					#getting the links dictionary as a string
+					g_links = json.dumps(config.links, separators=(',', ':'))
 
-			#updating the database
-            sql = "UPDATE `links` SET `guild_links` = %s LIMIT 1;"
-            cursor.execute(sql, (g_links))
-    finally:
-        connection.commit()
-        connection.close()
+					#updating the database
+					sql = "UPDATE `links` SET `guild_links` = %s LIMIT 1;"
+					cursor.execute(sql, (g_links))
+			finally:
+				connection.commit()
+				connection.close()
+		except:
+			print("Failed to update database.")
 
 #the Links cog class
 class Link(commands.Cog):
@@ -41,19 +47,31 @@ class Link(commands.Cog):
 	#listening to all message events
 	@commands.Cog.listener()
 	async def on_message(self, message):
-		#checking if the link prefix is used
-		if(message.content[0] == '>'):
-			#sending the url if a link name is sent
-			command = message.content[1:].split()[0]
-			if(command in config.links):
-				await message.channel.send(config.links[command])
+		if not message.author.bot:
+			#checking if the link prefix is used
+			if(message.content[0] == '>'):
+				#sending the url if a link name is sent
+				command = message.content[1:].split()[0]
+				if(command in config.links):
+					await message.channel.send(config.links[command])
 
 	#the link command
 	@commands.command()
 	async def link(self, ctx, linkname, result):
 		""" - Create a link to a url... send '>linkname' to see the url """
-		config.links[linkname] = result
-		await ctx.send("Added link.")
+		if re.match("^(?:http(s)?:\/\/)?[\w.-]+(?:\.[\w\.-]+)+[\w\-\._~:/?#[\]@!\$&'\(\)\*\+,;=.]+$", result):
+			config.links[linkname] = result
+			await ctx.send("Added link.")
+			updateLinks()
+		else:
+			await ctx.send("Invalid url.")
+
+	#the link command
+	@commands.command()
+	async def unlink(self, ctx, linkname):
+		""" - Remove a set link """
+		del config.links[linkname]
+		await ctx.send("Removed link.")
 		updateLinks()
 
 	#the showlinks command

@@ -44,4 +44,4 @@ async def load(ctx, cog):
 #bot.add_command(load)
 
 
-bot.run('***Token**')
+bot.run('***token***')

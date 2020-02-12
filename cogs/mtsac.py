@@ -59,7 +59,10 @@ class Mtsac(commands.Cog):
 				#getting the course text from the page
 				course = elem.find_element_by_css_selector("a").get_attribute('innerHTML')
 				#finding the course number using regex
-				cnum = re.findall("\\b\\d{3}\\b|\\b\\d{2}\\b|\\b\\d[A-Za-z]\\b|\\b\\d\\b" , course)[0]
+				if courseNum != "":
+					cnum = courseNum
+				else:
+					cnum = re.findall("\\b\\d{3}\\b|\\b\\d{2}\\b|\\b\\d[A-Za-z]\\b|\\b\\d\\b" , course)[0]
 				
 				if not cnum in classesDict:
 					classesDict[cnum] = True

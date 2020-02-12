@@ -9,7 +9,7 @@ import asyncio
 #This file will contain code for Daniel; AI chat-Bot
 
 #the greetings cog class
-class daniel(commands.Cog):
+class Daniel(commands.Cog):
     
     
 
@@ -30,7 +30,7 @@ class daniel(commands.Cog):
         '''-use this first to start a chat with DANIEL '''
         #use an if statement to check if "is_browser_open" is flase
         #if so, start up a browser
-        if self.is_browser_open is False:
+        if not self.is_browser_open:
         
             #print("timeout")
             #set a timeout to stop the program if the webpage does not load
@@ -55,7 +55,7 @@ class daniel(commands.Cog):
     async def end_chat(self, ctx):
         #print("in endchat")
         '''-Use this to end the conversation with DANIEL '''
-        if self.is_browser_open is True:
+        if self.is_browser_open:
             #CLose the browser
             self.browser.quit()
 
@@ -72,7 +72,7 @@ class daniel(commands.Cog):
     async def chat(self, ctx, *, User_input):
         #print("in chat")
         ''' -Enter a phrase to chat with DANIEL!'''
-        if self.is_browser_open is True:
+        if self.is_browser_open:
 
             #the following will check if the logo "Cleverbot" is in the website, if not then print the message "website not ... websigge":
             assert self.browser.find_element_by_id("cleverbotlogo"), "Website not found or wrong website?"
@@ -116,4 +116,4 @@ class daniel(commands.Cog):
 
 
 def setup(client):
-    client.add_cog(daniel(client))
+    client.add_cog(Daniel(client))

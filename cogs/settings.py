@@ -19,22 +19,26 @@ import config
 
 #function to update custom prefixes in remote mysql database
 def updateCustomPrefixes():
-    connection = pymysql.connect(host=config.server_info["ip"],
-                                user=config.server_info["database"]["user"],
-                                password=config.server_info["database"]["password"],
-                                db=config.server_info["database"]["name"],
-                                charset='utf8mb4',
-                                cursorclass=pymysql.cursors.DictCursor
-    )
-    try:
-        with connection.cursor() as cursor:
-            # Read a single record
-            c_prefixes = json.dumps(config.custom_prefixes, separators=(',', ':'))
-            sql = "UPDATE `prefixes` SET `custom_prefixes` = %s LIMIT 1;"
-            cursor.execute(sql, (c_prefixes))
-    finally:
-        connection.commit()
-        connection.close()
+    if config.sqlConnected:
+        try:
+            connection = pymysql.connect(host=config.server_info["ip"],
+                                        user=config.server_info["database"]["user"],
+                                        password=config.server_info["database"]["password"],
+                                        db=config.server_info["database"]["name"],
+                                        charset='utf8mb4',
+                                        cursorclass=pymysql.cursors.DictCursor
+            )
+            try:
+                with connection.cursor() as cursor:
+                    # Read a single record
+                    c_prefixes = json.dumps(config.custom_prefixes, separators=(',', ':'))
+                    sql = "UPDATE `prefixes` SET `custom_prefixes` = %s LIMIT 1;"
+                    cursor.execute(sql, (c_prefixes))
+            finally:
+                connection.commit()
+                connection.close()
+        except:
+            print("Failed to update database.")
     
 
 #the greetings cog class
