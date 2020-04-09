@@ -18,6 +18,8 @@ sqlConnected = False
 links = {}
 #THE CUSTOM PREFIXES (from database)
 custom_prefixes = {}
+#SELF ASSIGNABLE ROLES
+self_assignable_roles = {}
 
 
 #change cwd to directory of file
@@ -54,13 +56,33 @@ if sqlConnected:
     try:
         with connection.cursor() as cursor:
 
+
+            init_DB_SQL = [
+            "CREATE TABLE IF NOT EXISTS links(guild_links TEXT);",
+            "INSERT INTO links(guild_links) SELECT \"{}\" WHERE NOT EXISTS (SELECT *FROM links);",
+
+            "CREATE TABLE IF NOT EXISTS prefixes(default_prefixes TEXT, custom_prefixes TEXT);",
+            "INSERT INTO prefixes(default_prefixes, custom_prefixes) SELECT \"[!]\", \"{}\" WHERE NOT EXISTS (SELECT * FROM prefixes);",
+
+            "CREATE TABLE IF NOT EXISTS selfroles(rolenames TEXT);",
+            "INSERT INTO selfroles(rolenames) SELECT \"{}\" WHERE NOT EXISTS (SELECT *FROM selfroles);",
+            ]
+            
+            for initDB in init_DB_SQL:
+                cursor.execute(initDB)
+
+
             #GETTING THE LINKS FROM THE DATABASE
 
             links = json.loads(getFromDB("links", cursor)['guild_links'])
-
+            
             #GETTING THE CUSTOM PREFIXES FROM THE DATABASE
 
             custom_prefixes = json.loads(getFromDB("prefixes", cursor)['custom_prefixes'])
+
+            #GETTING THE SELF ASSIGNABLE ROLES FROM THE DATABASE
+            self_assignable_roles = json.loads(getFromDB("selfroles", cursor)['rolenames'])
+
     finally:
         connection.close()
 

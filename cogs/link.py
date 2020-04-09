@@ -14,7 +14,7 @@ sys.path.insert(1, os.path.join(sys.path[0], '..'))
 import config
 
 
-#function to update custom prefixes in remote mysql database
+#function to update links in remote mysql database
 def updateLinks():
 	if config.sqlConnected:
 		try:
@@ -29,7 +29,6 @@ def updateLinks():
 				with connection.cursor() as cursor:
 					#getting the links dictionary as a string
 					g_links = json.dumps(config.links, separators=(',', ':'))
-
 					#updating the database
 					sql = "UPDATE `links` SET `guild_links` = %s LIMIT 1;"
 					cursor.execute(sql, (g_links))
@@ -52,15 +51,18 @@ class Link(commands.Cog):
 			if(message.content[0] == '>'):
 				#sending the url if a link name is sent
 				command = message.content[1:].split()[0]
-				if(command in config.links):
-					await message.channel.send(config.links[command])
+				if str(message.guild.id) in config.links and command in config.links[str(message.guild.id)]:
+					await message.channel.send(config.links[str(message.guild.id)][command])
 
 	#the link command
 	@commands.command()
 	async def link(self, ctx, linkname, result):
 		""" - Create a link to a url... send '>linkname' to see the url """
+		if not str(ctx.guild.id) in config.links:
+				config.links[str(ctx.guild.id)] = {}
+
 		if re.match("^(?:http(s)?:\/\/)?[\w.-]+(?:\.[\w\.-]+)+[\w\-\._~:/?#[\]@!\$&'\(\)\*\+,;=.]+$", result):
-			config.links[linkname] = result
+			config.links[str(ctx.guild.id)][linkname] = result
 			await ctx.send("Added link.")
 			updateLinks()
 		else:
@@ -70,7 +72,10 @@ class Link(commands.Cog):
 	@commands.command()
 	async def unlink(self, ctx, linkname):
 		""" - Remove a set link """
-		del config.links[linkname]
+		if not str(ctx.guild.id) in config.links:
+			config.links[str(ctx.guild.id)] = {}
+			
+		del config.links[str(ctx.guild.id)][linkname]
 		await ctx.send("Removed link.")
 		updateLinks()
 
@@ -78,8 +83,11 @@ class Link(commands.Cog):
 	@commands.command()
 	async def showlinks(self, ctx):
 		""" - Show the list of the links in the server """
-		if len(config.links) > 0:
-			await ctx.send(str(config.links)[1:-1].replace(", ", "\n"))
+		if not str(ctx.guild.id) in config.links:
+			config.links[str(ctx.guild.id)] = {}
+
+		if len(config.links[str(ctx.guild.id)]) > 0:
+			await ctx.send(str(config.links[str(ctx.guild.id)])[1:-1].replace(", ", "\n"))
 		else:
 			await ctx.send("No links.")
 

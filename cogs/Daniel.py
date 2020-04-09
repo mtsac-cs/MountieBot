@@ -3,8 +3,13 @@ from discord.ext import commands
 #These modules are requried to use selenium:
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
+from selenium.webdriver.firefox.options import Options
+
 #import the asyncio module
 import asyncio
+
+import os
+from os import path
 
 #This file will contain code for Daniel; AI chat-Bot
 
@@ -15,7 +20,7 @@ class Daniel(commands.Cog):
 
     def __init__(self, bot):
         self.bot = bot
-        self.browser = webdriver.Firefox()
+        self.browser = browser
         #create a class variable to check is a web browser is already in use for Selenium
         #This will initially be set to false
         #create an instace of the webdriver that will be used, in this case im using the word "browser", any would work:
@@ -28,6 +33,9 @@ class Daniel(commands.Cog):
     async def start_chat(self, ctx):
        # print("In start chat")
         '''-use this first to start a chat with DANIEL '''
+
+
+
         #use an if statement to check if "is_browser_open" is flase
         #if so, start up a browser
         if not self.is_browser_open:
@@ -116,4 +124,12 @@ class Daniel(commands.Cog):
 
 
 def setup(client):
-    client.add_cog(Daniel(client))
+    os.chdir(os.path.dirname(os.path.realpath(__file__)))
+    if path.exists("resources/geckodriver.exe"):
+        global browser
+        options = Options()
+		#making browser headless
+        options.headless = True
+
+        browser = webdriver.Firefox(options=options, executable_path=r'resources\geckodriver.exe')
+        client.add_cog(Daniel(client))
