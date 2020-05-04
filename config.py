@@ -65,7 +65,7 @@ if sqlConnected:
             "INSERT INTO prefixes(default_prefixes, custom_prefixes) SELECT \"[!]\", \"{}\" WHERE NOT EXISTS (SELECT * FROM prefixes);",
 
             "CREATE TABLE IF NOT EXISTS selfroles(rolenames TEXT);",
-            "INSERT INTO selfroles(rolenames) SELECT \"{}\" WHERE NOT EXISTS (SELECT *FROM selfroles);",
+            "INSERT INTO selfroles(rolenames) SELECT \"{}\" WHERE NOT EXISTS (SELECT *FROM selfroles);"
             ]
             
             for initDB in init_DB_SQL:
@@ -88,9 +88,4 @@ if sqlConnected:
 
 #function to get the prefix based on guild id
 async def determine_prefix(bot, message):
-    guild = message.guild
-    #Only allow custom prefixs in guild
-    if guild:
-        return custom_prefixes.get(guild.id, default_prefixes)
-    else:
-        return default_prefixes
+    return custom_prefixes.get(str(message.guild.id)) or default_prefixes

@@ -27,7 +27,7 @@ class Mtsac(commands.Cog):
 		
 		os.chdir(os.path.dirname(os.path.realpath(__file__)))
 		#operning the appropriate using the term form to fill and submit
-		o = "file:/" + os.getcwd() + "/resources/" + term + ".html?subj=" + subj
+		o = "https://mountiediscordbot.netlify.app/classes/" + term + ".html?subj=" + subj
 		if courseNum != "":
 			o += ("&num=" + courseNum) 
 
